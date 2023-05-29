@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.objectboxpractice.ui.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_addUserFragment"
+            app:destination="@id/addUserFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addUserFragment"
+        android:name="com.example.objectboxpractice.ui.AddUserFragment"
+        android:label="fragment_adduser"
+        tools:layout="@layout/fragment_adduser" >
+        <argument
+            android:name="crud_type"
+            app:argType="com.example.objectboxpractice.util.CrudType" />
+        <argument
+            android:name="username"
+            app:argType="string" />
+    </fragment>
+</navigation>
