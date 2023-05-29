@@ -36,6 +36,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/txt_add"
             android:paddingVertical="8dp"
             android:text="@string/add"
             android:textSize="18sp"

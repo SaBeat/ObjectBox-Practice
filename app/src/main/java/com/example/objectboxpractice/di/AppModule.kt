@@ -1,4 +1,4 @@
-package com.example.objectboxpractice.appmodule
+package com.example.objectboxpractice.di
 
 import android.content.Context
 import com.example.objectboxpractice.entity.MyObjectBox
@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
     fun initObjectBox(@ApplicationContext context : Context) : BoxStore {

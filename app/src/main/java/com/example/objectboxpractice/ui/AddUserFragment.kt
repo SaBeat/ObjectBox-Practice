@@ -1,13 +1,16 @@
 package com.example.objectboxpractice.ui
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.objectboxpractice.R
 import com.example.objectboxpractice.base.BaseFragment
-import com.example.objectboxpractice.databinding.FragmentAdduserBinding
+import com.example.objectboxpractice.databinding.FragmentAddUserBinding
 import com.example.objectboxpractice.entity.User
 import com.example.objectboxpractice.entity.User_
 import com.example.objectboxpractice.util.CrudType
@@ -17,24 +20,37 @@ import io.objectbox.BoxStore
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AddUserFragment : BaseFragment<FragmentAdduserBinding>() {
+class AddUserFragment : BaseFragment<FragmentAddUserBinding>() {
     private val args: AddUserFragmentArgs by navArgs()
     private lateinit var navController: NavController
+    private lateinit var menuHost: MenuHost
 
     @Inject
     lateinit var boxStore: BoxStore
 
-    override val bindingCallBack: (LayoutInflater, ViewGroup?, Boolean) -> FragmentAdduserBinding
-        get() = FragmentAdduserBinding::inflate
+    override val bindingCallBack: (LayoutInflater, ViewGroup?, Boolean) -> FragmentAddUserBinding
+        get() = FragmentAddUserBinding::inflate
 
-    override val bindViews: FragmentAdduserBinding.() -> Unit
+    override val bindViews: FragmentAddUserBinding.() -> Unit
         get() = {
+            setActionBar()
             navController = findNavController()
-            requireActivity().actionBar?.setDisplayHomeAsUpEnabled(true)
-            val userBox = boxStore.boxFor(User::class.java)
+            menuHost = requireActivity()
 
+            val userBox = boxStore.boxFor(User::class.java)
             val username = args.username
             binding.tietUserName.setText(username)
+
+            when (args.crudType) {
+                CrudType.CREATE -> {
+                    txtAdd.text = getString(R.string.add)
+                    tilUserName.setHint(R.string.add_user)
+                }
+                CrudType.UPDATE -> {
+                    txtAdd.text = getString(R.string.update)
+                    tilUserName.setHint(R.string.update_user)
+                }
+            }
 
             cvAdd.setOnClickListener {
                 when (args.crudType) {
@@ -48,7 +64,7 @@ class AddUserFragment : BaseFragment<FragmentAdduserBinding>() {
                     }
                 }
             }
-            onBackPressed()
+            addUserMenu()
         }
 
     private fun addUser(userBox: Box<User>) {
@@ -72,13 +88,27 @@ class AddUserFragment : BaseFragment<FragmentAdduserBinding>() {
         query.close()
     }
 
-    private fun onBackPressed() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navController.popBackStack()
+    private fun setActionBar(){
+        val actionBar = (activity as? AppCompatActivity)?.supportActionBar
+        actionBar?.title = getString(R.string.add_user_fragment)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setDisplayShowHomeEnabled(true)
+    }
+
+    private fun addUserMenu(){
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.home_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    android.R.id.home -> {
+                        navController.popBackStack()
+                    }
+                    else -> false
                 }
-            })
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }

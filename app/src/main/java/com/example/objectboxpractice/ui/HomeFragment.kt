@@ -3,6 +3,10 @@ package com.example.objectboxpractice.ui
 import android.util.Log
 import android.view.*
 import android.widget.SearchView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.objectboxpractice.R
@@ -15,12 +19,16 @@ import com.example.objectboxpractice.entity.User_
 import com.example.objectboxpractice.util.Alerts
 import com.example.objectboxpractice.util.CrudType
 import dagger.hilt.android.AndroidEntryPoint
+import io.objectbox.Box
 import io.objectbox.BoxStore
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private lateinit var navController: NavController
+    private lateinit var userBox: Box<User>
+    private lateinit var menuHost: MenuHost
+
     companion object {
         private const val TAG = "DEBUG"
     }
@@ -33,14 +41,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     override val bindViews: FragmentHomeBinding.() -> Unit
         get() = {
+            setActionBar()
             navController = findNavController()
-            setHasOptionsMenu(true)
+            menuHost = requireActivity()
+            userBox = boxStore.boxFor(User::class.java)
+
+            homeMenu()
             getAllUsers()
             searchUser(searchBar)
+
         }
 
     private fun getAllUsers() {
-        val userBox = boxStore.boxFor(User::class.java)
         val userList = userBox.all
         if (binding.rvHome.adapter == null)
             binding.rvHome.adapter = usersAdapter
@@ -54,7 +66,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                val userBox = boxStore.boxFor(User::class.java)
                 User_.name.name.lowercase()
                 val query = userBox.query(User_.name.contains(newText))
                 val foundUsers = query.build().find()
@@ -66,7 +77,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     }
 
     private fun deleteUser(id: Long) {
-        val userBox = boxStore.boxFor(User::class.java)
         val userToDelete = userBox.get(id)
         val query = userBox.query().equal(User_.id, id)
 
@@ -80,8 +90,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         query.close()
     }
 
-    private fun deleteAllUsers(){
-        val userBox = boxStore.boxFor(User::class.java)
+    private fun deleteAllUsers() {
         userBox.removeAll()
         getAllUsers()
     }
@@ -97,7 +106,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         deleteUser(user.id)
                     }
                     root.setOnClickListener {
-                        val action  = HomeFragmentDirections.actionHomeFragmentToAddUserFragment(CrudType.UPDATE,user.name ?: "")
+                        val action = HomeFragmentDirections.actionHomeFragmentToAddUserFragment(
+                            CrudType.UPDATE,
+                            user.name ?: ""
+                        )
                         navController.navigate(action)
                     }
                 }
@@ -105,27 +117,44 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.home_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    private fun setActionBar() {
+        val actionBar = (activity as? AppCompatActivity)?.supportActionBar
+        actionBar?.title = getString(R.string.home_fragment)
+        actionBar?.setDisplayHomeAsUpEnabled(false)
+        actionBar?.setDisplayShowHomeEnabled(false)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_add -> {
-                val action =
-                    HomeFragmentDirections.actionHomeFragmentToAddUserFragment(CrudType.CREATE,"")
-                navController.navigate(action)
-                true
+    private fun homeMenu() {
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.home_menu, menu)
             }
-            R.id.menu_delete -> {
-                Alerts.deleteUsersDialog(requireContext(),getString(R.string.alert),getString(R.string.delete_all_users)){
-                    deleteAllUsers()
-                }
 
-                true
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_add -> {
+                        val action =
+                            HomeFragmentDirections.actionHomeFragmentToAddUserFragment(
+                                CrudType.CREATE,
+                                ""
+                            )
+                        navController.navigate(action)
+                        true
+                    }
+                    R.id.menu_delete -> {
+                        Alerts.deleteUsersDialog(
+                            requireContext(),
+                            getString(R.string.alert),
+                            getString(R.string.delete_all_users)
+                        ) {
+                            deleteAllUsers()
+                        }
+
+                        true
+                    }
+                    else -> false
+                }
             }
-            else -> super.onOptionsItemSelected(item)
-        }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 }
