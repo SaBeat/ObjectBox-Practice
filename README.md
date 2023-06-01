@@ -25,13 +25,12 @@ git clone https://github.com/SaBeat/ObjectBox-Practice.git
 
 2. Open the project in your preferred IDE or text editor.
 
-3. Build and run the project on your desired platform (Android or iOS).
+3. Build and run the project on your desired platform (Android).
 
 ## Requirements
 
 - Java 8 or higher.
 - Android Studio (for Android projects).
-- Xcode (for iOS projects).
 
 ## Documentation
 
