@@ -38,8 +38,8 @@ class AddUserFragment : BaseFragment<FragmentAddUserBinding>() {
             menuHost = requireActivity()
 
             val userBox = boxStore.boxFor(User::class.java)
-            val username = args.username
-            binding.tietUserName.setText(username)
+            val user = args.user
+            binding.tietUserName.setText(user.name)
 
             when (args.crudType) {
                 CrudType.CREATE -> {
@@ -59,7 +59,7 @@ class AddUserFragment : BaseFragment<FragmentAddUserBinding>() {
                         navController.popBackStack()
                     }
                     CrudType.UPDATE -> {
-                        updateUser(userBox, username)
+                        updateUser(userBox, user)
                         navController.popBackStack()
                     }
                 }
@@ -67,15 +67,22 @@ class AddUserFragment : BaseFragment<FragmentAddUserBinding>() {
             addUserMenu()
         }
 
+    private fun setActionBar(){
+        val actionBar = (activity as? AppCompatActivity)?.supportActionBar
+        actionBar?.title = getString(R.string.add_user_fragment)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setDisplayShowHomeEnabled(true)
+    }
+
     private fun addUser(userBox: Box<User>) {
         val userName = binding.tietUserName.text.toString()
         val user = User(0, userName)
         userBox.put(user)
     }
 
-    private fun updateUser(userBox: Box<User>, username: String) {
+    private fun updateUser(userBox: Box<User>, user: User) {
         val userName = binding.tietUserName.text.toString()
-        val query = userBox.query(User_.name.equal(username))
+        val query = userBox.query(User_.id.equal(user.id))
         val foundUsers = query.build().find()
 
         userBox.store.runInTx {
@@ -86,13 +93,6 @@ class AddUserFragment : BaseFragment<FragmentAddUserBinding>() {
         }
 
         query.close()
-    }
-
-    private fun setActionBar(){
-        val actionBar = (activity as? AppCompatActivity)?.supportActionBar
-        actionBar?.title = getString(R.string.add_user_fragment)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setDisplayShowHomeEnabled(true)
     }
 
     private fun addUserMenu(){

@@ -66,7 +66,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                User_.name.name.lowercase()
                 val query = userBox.query(User_.name.contains(newText))
                 val foundUsers = query.build().find()
                 usersAdapter.submitList(foundUsers)
@@ -108,7 +107,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                     root.setOnClickListener {
                         val action = HomeFragmentDirections.actionHomeFragmentToAddUserFragment(
                             CrudType.UPDATE,
-                            user.name ?: ""
+                            user
                         )
                         navController.navigate(action)
                     }
@@ -136,7 +135,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         val action =
                             HomeFragmentDirections.actionHomeFragmentToAddUserFragment(
                                 CrudType.CREATE,
-                                ""
+                                User(0,"")
                             )
                         navController.navigate(action)
                         true

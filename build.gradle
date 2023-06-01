@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.objectboxVersion = "3.5.0"
+    ext.objectboxVersion = "3.6.0"
     ext.nav_version = "2.5.3"
     ext.hilt_version = "2.44"
     ext.lifecycle_version = "2.6.1"
@@ -10,6 +10,7 @@ buildscript {
     }
     dependencies {
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
+        //ObjectBox Classpath
         classpath("io.objectbox:objectbox-gradle-plugin:$objectboxVersion")
     }
 }

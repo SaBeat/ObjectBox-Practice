@@ -23,7 +23,7 @@
             android:name="crud_type"
             app:argType="com.example.objectboxpractice.util.CrudType" />
         <argument
-            android:name="username"
-            app:argType="string" />
+            android:name="user"
+            app:argType="com.example.objectboxpractice.entity.User" />
     </fragment>
 </navigation>

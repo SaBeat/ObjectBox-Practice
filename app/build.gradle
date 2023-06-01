@@ -1,9 +1,11 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    //ObjectBox Plugin
     id 'io.objectbox'
     id 'androidx.navigation.safeargs'
     id 'com.google.dagger.hilt.android'
+    id 'kotlin-parcelize'
     id 'kotlin-kapt'
 }
 
